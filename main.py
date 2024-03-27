@@ -68,6 +68,6 @@ class Equation(Grid):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     g = Equation(-8, 8, -8, 8, 1)
-    g.visual("1 - (x/8) ** 2 + 0.5 * sin(pi/4 * y)")
+    g.visual("1 - (x/8) ** 3 + 0.5 * sin(pi/4 * y)")
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
