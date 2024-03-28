@@ -27,16 +27,16 @@ class Equation(Grid):
 
     def x_values(self):
         x = []
-        for i in range(self.x_min, self.x_max):
+        for i in range(self.y_min, self.y_max):
             for j in range(self.x_min, self.x_max):
-                x.append(i + np.random.sample())
+                x.append(j + np.random.sample())
         return x
 
     def y_values(self):
         y = []
-        for i in range(self.x_min, self.x_max):
+        for i in range(self.y_min, self.y_max):
             for j in range(self.x_min, self.x_max):
-                y.append(j + np.random.sample())
+                y.append(i + np.random.sample())
         return y
 
     def calculate_equation(self, equation, x_value, y_value, pi_value=np.pi):
@@ -55,8 +55,8 @@ class Equation(Grid):
 
     def visual(self, equation):
         # Визуализация результата
-        x = np.linspace(0, 1, self.len() + 1)
-        y = np.linspace(0, 1, self.len() + 1)
+        x = np.linspace(self.x_min, self.x_max, self.len() + 1)
+        y = np.linspace(self.y_min, self.y_max, self.len() + 1)
         x_, y_ = np.meshgrid(x, y)
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -78,6 +78,9 @@ class Equation(Grid):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     g = Equation(-8, 8, -8, 8, 1)
+    print(g.x_values())
+    print('\n\n\n')
+    print(g.y_values())
     g.visual("1 - (x/8) ** 2 + 0.5 * sin(pi/4 * y)")
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
