@@ -1,8 +1,10 @@
 # This is a sample Python script.
 
+
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import numpy as np
+import random
 import matplotlib.pyplot as plt
 from sympy import symbols, sympify
 
@@ -24,10 +26,18 @@ class Equation(Grid):
 
 
     def x_values(self):
-        return np.random.uniform(self.x_min, self.x_max, self.len() ** 2)
+        x = []
+        for i in range(self.x_min, self.x_max):
+            for j in range(self.x_min, self.x_max):
+                x.append(i + np.random.sample())
+        return x
 
     def y_values(self):
-        return np.random.uniform(self.y_min, self.y_max, self.len() ** 2)
+        y = []
+        for i in range(self.x_min, self.x_max):
+            for j in range(self.x_min, self.x_max):
+                y.append(j + np.random.sample())
+        return y
 
     def calculate_equation(self, equation, x_value, y_value, pi_value=np.pi):
         x, y, pi = symbols('x y pi')
