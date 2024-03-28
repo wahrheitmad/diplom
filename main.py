@@ -8,6 +8,7 @@ import random
 import matplotlib.pyplot as plt
 from sympy import symbols, sympify
 
+# Класс сетки
 class Grid:
     def __init__(self, x_min, x_max, y_min, y_max, length):
         self.x_min = x_min
@@ -17,14 +18,25 @@ class Grid:
         self.length = length
         print("Создана сетка [{0}, {1}] x [{2}, {3}], сторона квадрата: {4}".format(x_min, x_max, y_min, y_max, length))
 
+    # Длина = ширина сетки
     def len(self):
         return abs(self.x_min) + abs(self.x_max)
 
+
+    # Инициализация сетки
+    def grid_init(self):
+        x = np.linspace(self.x_min, self.x_max, self.len())
+        y = np.linspace(self.y_min, self.y_max, self.len())
+        return x, y
+
+
+# Класс уравнения
 class Equation(Grid):
     def __init__(self, x_min, x_max, y_min, y_max, length):
         super().__init__(x_min, x_max, y_min, y_max, length)
 
 
+    # Массив значений X
     def x_values(self):
         x = []
         for i in range(self.y_min, self.y_max):
@@ -32,6 +44,7 @@ class Equation(Grid):
                 x.append(j + np.random.sample())
         return x
 
+    # Массив значений Y
     def y_values(self):
         y = []
         for i in range(self.y_min, self.y_max):
@@ -39,24 +52,24 @@ class Equation(Grid):
                 y.append(i + np.random.sample())
         return y
 
+    # Преобразование строки уравнения для вычислений
     def calculate_equation(self, equation, x_value, y_value, pi_value=np.pi):
         x, y, pi = symbols('x y pi')
         expr = sympify(equation)  # Преобразование строки уравнения в символьное выражение
         result = expr.subs({x: x_value, y: y_value, pi: pi_value})  # Подстановка значений переменных в уравнение
         return result
 
+    # Массив значений Z
     def z_values(self, equation):
-        z = np.zeros((self.len() + 1, self.len() + 1))
-        for i in range(1, self.len()):
-            for j in range(1, self.len()):
+        z = np.zeros((self.len(), self.len()))
+        for i in range(0, self.len()):
+            for j in range(0, self.len()):
                 z[i][j] = self.calculate_equation(equation, self.x_values()[i], self.y_values()[j])
         return z
 
-
+    # Визуализация поверхности
     def visual(self, equation):
-        # Визуализация результата
-        x = np.linspace(self.x_min, self.x_max, self.len() + 1)
-        y = np.linspace(self.y_min, self.y_max, self.len() + 1)
+        x, y = self.grid_init()
         x_, y_ = np.meshgrid(x, y)
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -81,6 +94,8 @@ if __name__ == '__main__':
     print(g.x_values())
     print('\n\n\n')
     print(g.y_values())
+    print('\n\n\n')
+    print(g.z_values("1 - (x/8) ** 2 + 0.5 * sin(pi/4 * y)"))
     g.visual("1 - (x/8) ** 2 + 0.5 * sin(pi/4 * y)")
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
