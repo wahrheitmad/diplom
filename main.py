@@ -41,16 +41,16 @@ class Equation(Grid):
         x = []
         for i in range(self.y_min, self.y_max):
             for j in range(self.x_min, self.x_max):
-                x.append(j + np.random.sample())
-        return x
+                x.append(np.round(j + np.random.sample(), 4))
+        return np.array(x)
 
     # Массив значений Y
     def y_values(self):
         y = []
         for i in range(self.y_min, self.y_max):
             for j in range(self.x_min, self.x_max):
-                y.append(i + np.random.sample())
-        return y
+                y.append(np.round(i + np.random.sample(), 4))
+        return np.array(y)
 
     # Преобразование строки уравнения для вычислений
     def calculate_equation(self, equation, x_value, y_value, pi_value=np.pi):
@@ -61,31 +61,28 @@ class Equation(Grid):
 
     # Массив значений Z
     def z_values(self, equation):
-        z = np.zeros((self.len(), self.len()))
-        for i in range(0, self.len()):
-            for j in range(0, self.len()):
-                z[i][j] = self.calculate_equation(equation, self.x_values()[i], self.y_values()[j])
-        return z
+        z = []
+        x = self.x_values()
+        y = self.y_values()
+        for i in range(0, self.len()**2):
+            z[i] = self.calculate_equation(equation, x[i], y[i])
+        return x, y, z
 
     # Визуализация поверхности
     def visual(self, equation):
-        x, y = self.grid_init()
-        x_, y_ = np.meshgrid(x, y)
+        x, y, z = self.z_values(equation)
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(x_, y_, self.z_values(equation).T, cmap='viridis')
+        surf = ax.plot_surface(x, y, z, cmap='viridis')
+
+        # Добавляем метки и цветовую шкалу
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
-        ax.set_zlabel('U')
+        ax.set_zlabel('Z')
+        fig.colorbar(surf)
+
+        # Отображаем график
         plt.show()
-
-
-
-
-
-
-
-
 
 
 # Press the green button in the gutter to run the script.
