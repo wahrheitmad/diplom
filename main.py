@@ -30,19 +30,19 @@ class Equation(Grid):
 
     # Массив значений X
     def x_values(self):
-        x = []
+        x_ = []
         for i in range(self.y_min, self.y_max):
             for j in range(self.x_min, self.x_max):
-                x.append(np.round(j + np.random.sample(), 4))
-        return np.array(x)
+                x_.append(np.round(j + np.random.sample(), 4))
+        return np.array(x_)
 
     # Массив значений Y
     def y_values(self):
-        y = []
+        y_ = []
         for i in range(self.y_min, self.y_max):
             for j in range(self.x_min, self.x_max):
-                y.append(np.round(i + np.random.sample(), 4))
-        return np.array(y)
+                y_.append(np.round(i + np.random.sample(), 4))
+        return np.array(y_)
 
     # Преобразование строки уравнения для вычислений
     # def calculate_equation(self, equation, x_value, y_value, pi_value=np.pi):
@@ -53,16 +53,16 @@ class Equation(Grid):
     #     return result
 
     # Массив значений Z
-    def z_values(self, x, y):
-        z = []
+    def z_values(self, x_, y_):
+        z_ = []
         for i in range(0, self.len()**2):
-            z.append(eval(self.equation, {"sin": sin, "cos": cos, "pi": pi, "x": x[i], "y": y[i]}))
-        z = np.array(z)
+            z_.append(eval(self.equation, {"sin": sin, "cos": cos, "pi": pi, "x": x_[i], "y": y_[i]}))
+        z_ = np.array(z_)
         return z
 
     # Визуализация поверхности
-    def visual(self, x, y):
-        xgrid, ygrid = np.meshgrid(x, y)
+    def visual(self, x_, y_):
+        xgrid, ygrid = np.meshgrid(x_, y_)
         # zgrid = 1 - (xgrid/8) ** 2 + 0.5 * np.sin(np.pi/4 * ygrid)
         # zgrid = self.calculate_equation("1 - (x/8) ** 2 + 0.5 * sin(pi/4 * y)", xgrid, ygrid)
         zgrid = eval(self.equation, {"sin": sin, "cos": cos, "pi": pi, "x": xgrid, "y": ygrid})
