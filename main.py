@@ -57,23 +57,28 @@ class Equation(Grid):
         x, y, pi = symbols('x y pi')
         expr = sympify(equation)  # Преобразование строки уравнения в символьное выражение
         result = expr.subs({x: x_value, y: y_value, pi: pi_value})  # Подстановка значений переменных в уравнение
+        result = result.evalf() # Оценка символьного выражения для получения числового значения
         return result
 
     # Массив значений Z
     def z_values(self, equation):
-        z = []
         x = self.x_values()
         y = self.y_values()
+        z = []
         for i in range(0, self.len()**2):
-            z[i] = self.calculate_equation(equation, x[i], y[i])
+            temp = self.calculate_equation(equation, x[i], y[i])
+            z.append(temp)
+        z = np.array(y)
         return x, y, z
 
     # Визуализация поверхности
     def visual(self, equation):
-        x, y, z = self.z_values(equation)
+        x, y, z = self.z_values(equation);
+        xgrid, ygrid = np.meshgrid(x, y)
+        zgrid = 1 - (xgrid/8) ** 2 + 0.5 * np.sin(np.pi/4 * ygrid)
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        surf = ax.plot_surface(x, y, z, cmap='viridis')
+        surf = ax.plot_surface(xgrid, ygrid, zgrid, rstride = 2, cstride = 2, cmap='viridis')
 
         # Добавляем метки и цветовую шкалу
         ax.set_xlabel('X')
@@ -88,11 +93,11 @@ class Equation(Grid):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     g = Equation(-8, 8, -8, 8, 1)
-    print(g.x_values())
-    print('\n\n\n')
-    print(g.y_values())
-    print('\n\n\n')
-    print(g.z_values("1 - (x/8) ** 2 + 0.5 * sin(pi/4 * y)"))
+    # print(g.x_values())
+    # print('\n\n\n')
+    # print(g.y_values())
+    # print('\n\n\n')
+    # print(g.z_values("1 - (x/8) ** 2 + 0.5 * sin(pi/4 * y)"))
     g.visual("1 - (x/8) ** 2 + 0.5 * sin(pi/4 * y)")
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
