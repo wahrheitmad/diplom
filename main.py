@@ -58,7 +58,7 @@ class Equation(Grid):
         for i in range(0, self.len()**2):
             z_.append(eval(self.equation, {"sin": sin, "cos": cos, "pi": pi, "x": x_[i], "y": y_[i]}))
         z_ = np.array(z_)
-        return z
+        return z_
 
     # Визуализация поверхности
     def visual(self, x_, y_):
