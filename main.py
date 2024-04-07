@@ -5,7 +5,6 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import numpy as np
 import matplotlib.pyplot as plt
-from sympy import symbols, sympify
 from numpy import sin, cos, pi
 
 # Класс сетки
@@ -63,19 +62,27 @@ class Equation(Grid):
     # Визуализация поверхности
     def visual(self, x_, y_):
         xgrid, ygrid = np.meshgrid(x_, y_)
-        # zgrid = 1 - (xgrid/8) ** 2 + 0.5 * np.sin(np.pi/4 * ygrid)
-        # zgrid = self.calculate_equation("1 - (x/8) ** 2 + 0.5 * sin(pi/4 * y)", xgrid, ygrid)
-        zgrid = eval(self.equation, {"sin": sin, "cos": cos, "pi": pi, "x": xgrid, "y": ygrid})
+        zgrid = 1 - (xgrid/8) ** 2 + 0.5 * np.sin(np.pi/4 * ygrid)
+        zgrid1 = eval(self.equation, {"sin": sin, "cos": cos, "pi": pi, "x": xgrid, "y": ygrid})
         fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        surf = ax.plot_surface(xgrid, ygrid, zgrid, rstride = 1, cstride = 1, cmap='viridis')
+        plt.figure(figsize=(12, 7))
+        # surf = ax.plot_surface(xgrid, ygrid, zgrid, cmap='viridis')
+        # surf1 = ax.plot_surface(xgrid, ygrid, zgrid1, cmap='viridis')
 
-        # Добавляем метки и цветовую шкалу
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
-        fig.colorbar(surf)
+        # Добавляем метки
+        # Первый график
+        ax1 = fig.add_subplot(121, projection='3d')
+        ax1.plot_surface(xgrid, ygrid, zgrid, cmap='viridis')
+        ax1.set_xlabel('X')
+        ax1.set_ylabel('Y')
+        ax1.set_zlabel('Z')
 
+        # Второй график
+        ax2 = fig.add_subplot(122, projection='3d')
+        ax2.plot_surface(xgrid, ygrid, zgrid1, cmap='viridis')
+        ax2.set_xlabel('X')
+        ax2.set_ylabel('Y')
+        ax2.set_zlabel('Z')
         # Отображаем график
         plt.show()
 
@@ -91,5 +98,4 @@ if __name__ == '__main__':
     x = g.x_values()
     y = g.y_values()
     g.visual(x, y)
-
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
