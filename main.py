@@ -64,8 +64,8 @@ class Equation(Grid):
         xgrid, ygrid = np.meshgrid(x_, y_)
         zgrid = 1 - (xgrid/8) ** 2 + 0.5 * np.sin(np.pi/4 * ygrid)
         zgrid1 = eval(self.equation, {"sin": sin, "cos": cos, "pi": pi, "x": xgrid, "y": ygrid})
-        fig = plt.figure()
-        plt.figure(figsize=(12, 7))
+        fig = plt.figure(figsize=(12, 7))
+        # plt.figure(figsize=(12, 7))
         # surf = ax.plot_surface(xgrid, ygrid, zgrid, cmap='viridis')
         # surf1 = ax.plot_surface(xgrid, ygrid, zgrid1, cmap='viridis')
 
@@ -84,7 +84,8 @@ class Equation(Grid):
         ax2.set_ylabel('Y')
         ax2.set_zlabel('Z')
         # Отображаем график
-        plt.show()
+        #plt.show()
+        return fig
 
 
 # Press the green button in the gutter to run the script.
