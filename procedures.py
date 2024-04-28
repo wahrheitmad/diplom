@@ -45,7 +45,17 @@ def order(n, t_, y_, x_, q):
                         a_[l] = a_[l+1]
                         a_[l+1] = temp
     print(1)
+    return a_
 
+def move(n, x_, y_, z_, a_):
+    def mov(v_):
+        u_ = copy(v_)
+        for i in range(0, n):
+            v_[i] = u_[a_[i+1]]
+    mov(x_)
+    mov(y_)
+    mov(z_)
+    return x_, y_, z_
 
 def osp(n, x_, y_, z_, r, lam):
     d_ = []
@@ -92,10 +102,12 @@ if __name__ == '__main__':
     # y = [3, 3, 8, 4]
     y = [0, 0, 0, 0, 0, 0]
     y = np.array(y)
+    z = [2, 5, 6, 3, 4, 1]
+    z = np.array(z)
     ready(6, x, y, 1)
     print(number(y))
     q = number(y)
     t_ = layer(6, y, q)
-    order(6, t_, y, x, q)
-
+    a_ = order(6, t_, y, x, q)
+    move(6, x, y, z, a_)
     print(1)
