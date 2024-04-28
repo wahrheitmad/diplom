@@ -19,13 +19,16 @@ class Grid:
 
     # Длина = ширина сетки
     def len(self):
-        return abs(self.x_min) + abs(self.x_max)
+        return abs(self.x_max) - abs(self.x_min)
 
 # Класс уравнения
 class Equation(Grid):
     def __init__(self, x_min, x_max, y_min, y_max, length, equation):
         super().__init__(x_min, x_max, y_min, y_max, length)
         self.equation = equation
+        self.x_ = self.x_values()
+        self.y_ = self.y_values()
+        self.z_ = self.z_values(self.x_, self.y_)
 
     # Массив значений X
     def x_values(self):
@@ -58,6 +61,10 @@ class Equation(Grid):
             z_.append(eval(self.equation, {"sin": sin, "cos": cos, "pi": pi, "x": x_[i], "y": y_[i]}))
         z_ = np.array(z_)
         return z_
+
+    def count(self):
+        return len(self.x_)
+
 
     # Визуализация поверхности
     def visual(self, x_, y_):
@@ -96,7 +103,9 @@ if __name__ == '__main__':
     # print(g.y_values())
     # print('\n\n\n')
     # print(g.z_values("1 - (x/8) ** 2 + 0.5 * sin(pi/4 * y)"))
-    x = g.x_values()
-    y = g.y_values()
-    g.visual(x, y)
+    # x = g.x_values()
+    # y = g.y_values()
+    fig = g.visual(g.x_, g.y_)
+    g.count()
+    plt.show()
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
