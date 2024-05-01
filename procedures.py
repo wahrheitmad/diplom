@@ -60,25 +60,90 @@ def move(n, x_, y_, z_, a_):
 def osp(n, x_, y_, z_, r, lam):
     d_ = []
     g_ = []
+    l_ = []
     equation = "((1-x)**(r+1)*(1-y)**(r+1))/((1+lam*x)*(1+lam*y))"
     for i in range(0, n):
         w_temp = 0
         d_temp = 0
         g_temp = 0
+        l_temp = 0
         for j in range(0, n):
             x_current = x_[i] - x_[j]
             y_current = y_[i] - y_[j]
-            x_current = x_current ** 2
-            y_current = y_current ** 2
             if abs(x_current) < 1 and abs(y_current) < 1:
+                x_current = x_current ** 2
+                y_current = y_current ** 2
                 w_temp = eval(equation, {"x": x_current, "y": y_current, "r": r, "lam": lam})
             else:
                 w_temp = 0
             d_temp += z_[j] * w_temp
             g_temp += w_temp
+            l_temp = d_temp/g_temp
         d_.append(d_temp)
         g_.append(g_temp)
+        l_.append(l_temp)
     return d_, g_
+
+def lyambda(n):
+    lyambda = np.zeros(n).astype(int)
+    lyambda[1] = 100
+    for i in range(2, n):
+        lyambda[i] = lyambda[i-1]*3
+    return lyambda
+
+
+
+def coef(n, x_, y_, z_, e, r, m, lyambda, c, iks):
+    f1, c1, f2, c2 = 0
+    f_o = []
+    sigma = []
+    def control(lam, el, z_):
+        f1 = np.max(np.abs(z_))
+        f2 = 0
+        for j in range(1, n):
+            f2 += z[j]**2
+        f2 = np.sqrt(f2/n)
+        if el == 0:
+            c1 = c2 = 0
+        else:
+            c1 = f1
+            c2 = f2
+        c1 = c1/f1
+        c2 = c2/f2
+        # if iks:
+        #     return f1, c1
+        # else:
+        #     return f2, c2
+        # return f1, c1, f2, c2
+        print("todo")
+
+    el = 0
+    iks = True
+    control(lyambda[0], el, z_)
+    m0 = m
+    for k in range(1, m0):
+        lam = lyambda[k]
+        sigma.append(z_)
+        # sigma_current = sigma[k-1]
+        el += 1
+        d_, g_ = osp(n, x_, y_, z_, r, lam)
+        for i in range(0, n):
+            z_[i] = z_[i] - d[i]/g[i]
+        control(lam, el, z_)
+        if f1 >= e or c1 >= c:
+            for m in range(0, n):
+                sigma[k-1][m] += z[m]
+        if f1 <= e or k == m0:
+            m = k
+            return sigma[k-1]
+            break
+
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -97,7 +162,7 @@ if __name__ == '__main__':
     # layer(g.len(), y, q)
     # d, g = osp(g.len(), x, y, z, 0, 1)
     # x = [2, 1, 4, 6]
-    x = [2, 5, 4, 3, 4, 1]
+    x = [0.2, 0.5, 4, 3, 4, 1]
     x = np.array(x)
     # y = [3, 3, 8, 4]
     y = [0, 0, 0, 0, 0, 0]
@@ -110,4 +175,7 @@ if __name__ == '__main__':
     t_ = layer(6, y, q)
     a_ = order(6, t_, y, x, q)
     move(6, x, y, z, a_)
+    d, g = osp(6, x, y, z, 0, 1)
+    lyambda1 = lyambda(10)
+    coef(6, x, y, z, 0.01, 1.2, 3, lyambda1, True)
     print(1)
