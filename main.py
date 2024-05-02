@@ -57,7 +57,7 @@ class Equation(Grid):
     # Массив значений Z
     def z_values(self, x_, y_):
         z_ = []
-        for i in range(0, self.len()**2):
+        for i in range(0, self.count()):
             z_.append(eval(self.equation, {"sin": sin, "cos": cos, "pi": pi, "x": x_[i], "y": y_[i]}))
         z_ = np.array(z_)
         return z_

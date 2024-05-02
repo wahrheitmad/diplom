@@ -13,8 +13,8 @@ def ready(n, x_, y_, s):
     return x_, y_
 
 
-def number(y_):
-    return int(y_.max()) + 1
+def number(y_, x_):
+    return int(y_.max()) + 1, int(x_.max()) + 1,
 
 
 def layer(n, y_, q):
@@ -94,17 +94,17 @@ def lyambda(n):
 
 
 def coef(n, x_, y_, z_, e, r, m, lyambda, c, iks):
-    f1, c1, f2, c2 = 0
     f_o = []
     sigma = []
     def control(lam, el, z_):
         f1 = np.max(np.abs(z_))
         f2 = 0
-        for j in range(1, n):
-            f2 += z[j]**2
+        for j in range(0, n):
+            f2 += z_[j]**2
         f2 = np.sqrt(f2/n)
         if el == 0:
-            c1 = c2 = 0
+            c1 = 0
+            c2 = 0
         else:
             c1 = f1
             c2 = f2
@@ -114,12 +114,12 @@ def coef(n, x_, y_, z_, e, r, m, lyambda, c, iks):
         #     return f1, c1
         # else:
         #     return f2, c2
-        # return f1, c1, f2, c2
+        return f1, c1, f2, c2
         print("todo")
 
     el = 0
     iks = True
-    control(lyambda[0], el, z_)
+    f1, c1, f2, c2 = control(lyambda[0], el, z_)
     m0 = m
     for k in range(1, m0):
         lam = lyambda[k]
@@ -128,18 +128,30 @@ def coef(n, x_, y_, z_, e, r, m, lyambda, c, iks):
         el += 1
         d_, g_ = osp(n, x_, y_, z_, r, lam)
         for i in range(0, n):
-            z_[i] = z_[i] - d[i]/g[i]
-        control(lam, el, z_)
+            z_[i] = z_[i] - d_[i]/g_[i]
+        f1, c1, f2, c2 = control(lam, el, z_)
         if f1 >= e or c1 >= c:
-            for m in range(0, n):
-                sigma[k-1][m] += z[m]
+            for p in range(0, n):
+                sigma[k-1][p] += z_[p]
         if f1 <= e or k == m0:
             m = k
-            return sigma[k-1]
+            return sigma[k-1], m
             break
 
 
 
+def square(n, x_, y_, t_, p, q):
+    m_ = np.zeros(p + 1)
+    k_ = np.zeros(p*q + 1)
+    k_[0] = 1
+    for j in range (0, q-1):
+        for l in range (t_[j], t_[j+1] - 1):
+            i = int(x_[l])
+            m_[i] = m_[i] + 1
+        l = j * p
+        for i in range(0, p-1):
+            k_[i + l + 1] = k_[i + l] + m_[i]
+    return  k_
 
 
 
@@ -156,26 +168,30 @@ if __name__ == '__main__':
     # x = g.x_values()
     # y = g.y_values()
     # z = g.z_values(x, y)
-    # ready(g.len(), x, y, g.length)
-    # print(number(y))
-    # q = number(y)
-    # layer(g.len(), y, q)
+    # g.x_, g.y_ = ready(g.count(), g.x_, g.y_, g.length)
+    # q, p = number(g.y_, g.x_)
+    # t_ = layer(g.count(), g.y_, q)
+    # a_ = order(g.count(), t_, g.y_, g.x_, q)
+    # g.x_, g.y_, g.z_ = move(g.count(), g.x_, g.y_, g.z_, a_)
+    # lyambda1 = lyambda(10)
+    # sigma, m = coef(g.count(), g.x_, g.y_, g.z_, 0.01, 3, 10, lyambda1, 1.2, iks=True)
     # d, g = osp(g.len(), x, y, z, 0, 1)
-    # x = [2, 1, 4, 6]
-    x = [0.2, 0.5, 4, 3, 4, 1]
+    x = [2, 1, 4, 6]
+    # x = [0.2, 0.5, 4, 3, 4, 1]
     x = np.array(x)
-    # y = [3, 3, 8, 4]
-    y = [0, 0, 0, 0, 0, 0]
+    y = [3, 3, 8, 4]
+    # y = [0, 0, 0, 0, 0, 0]
     y = np.array(y)
-    z = [2, 5, 6, 3, 4, 1]
+    z = [2, 5, 6, 3]
     z = np.array(z)
-    ready(6, x, y, 1)
-    print(number(y))
-    q = number(y)
-    t_ = layer(6, y, q)
-    a_ = order(6, t_, y, x, q)
-    move(6, x, y, z, a_)
-    d, g = osp(6, x, y, z, 0, 1)
+    ready(4, x, y, 1)
+
+    q, p = number(y, x)
+    t_ = layer(4, y, q)
+    a_ = order(4, t_, y, x, q)
+    move(4, x, y, z, a_)
+    # d, g = osp(6, x, y, z, 0, 1)
     lyambda1 = lyambda(10)
-    coef(6, x, y, z, 0.01, 1.2, 3, lyambda1, True)
+    coef(4, x, y, z, 0.01, 3, 10, lyambda1, 1.2, iks = True)
+    square(4, x, y, t_, p, q)
     print(1)
