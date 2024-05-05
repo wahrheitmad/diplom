@@ -1,4 +1,5 @@
 import tkinter
+from tkinter import filedialog
 
 import numpy as np
 from matplotlib.backends.backend_tkagg import (
@@ -7,6 +8,7 @@ from matplotlib.figure import Figure
 from numpy import sin, cos
 
 from main import Equation
+from fromexcel import read_from_excel
 
 is_closed = False
 
@@ -17,6 +19,11 @@ def make_equation(x_min, x_max, y_min, y_max, length, equation):
     y = g.y_values()
     fig = g.visual(x, y)
     return fig
+
+
+def open_file():
+    filepath = filedialog.askopenfilename()
+    read_from_excel(filepath)
 
 
 def _hide(widget):
@@ -51,7 +58,7 @@ mainmenu = tkinter.Menu(root)
 root.config(menu=mainmenu)
 
 filemenu = tkinter.Menu(mainmenu, tearoff=0)
-filemenu.add_command(label="Открыть...")
+filemenu.add_command(label="Открыть...", command=open_file)
 filemenu.add_command(label="Новый")
 filemenu.add_command(label="Сохранить...")
 filemenu.add_command(label="Выход", command=_quit)
