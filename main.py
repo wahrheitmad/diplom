@@ -78,20 +78,20 @@ class Equation(Grid):
 
         # Добавляем метки
         # Первый график
-        ax1 = fig.add_subplot(121, projection='3d')
-        ax1.plot_surface(xgrid, ygrid, zgrid, cmap='viridis')
-        ax1.set_xlabel('X')
-        ax1.set_ylabel('Y')
-        ax1.set_zlabel('Z')
+        # ax1 = fig.add_subplot(121, projection='3d')
+        # ax1.plot_surface(xgrid, ygrid, zgrid, cmap='viridis')
+        # ax1.set_xlabel('X')
+        # ax1.set_ylabel('Y')
+        # ax1.set_zlabel('Z')
 
         # Второй график
-        ax2 = fig.add_subplot(122, projection='3d')
+        ax2 = fig.add_subplot(111, projection='3d')
         ax2.plot_surface(xgrid, ygrid, zgrid1, cmap='viridis')
         ax2.set_xlabel('X')
         ax2.set_ylabel('Y')
         ax2.set_zlabel('Z')
         # Отображаем график
-        #plt.show()
+        # plt.show()
         return fig
 
 

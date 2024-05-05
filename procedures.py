@@ -133,6 +133,7 @@ def coef(n, x_, y_, z_, e, r, m, lyambda, c, iks):
         if f1 >= e or c1 >= c:
             for p in range(0, n):
                 sigma[k-1][p] += z_[p]
+        # перезаписать сигму
         if f1 <= e or k == m0:
             m = k
             return sigma[k-1], m
