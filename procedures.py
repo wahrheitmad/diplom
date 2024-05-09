@@ -78,10 +78,8 @@ def osp(n, x_, y_, z_, r, lam):
                 w_temp = 0
             d_temp += z_[j] * w_temp
             g_temp += w_temp
-            l_temp = d_temp/g_temp
         d_.append(d_temp)
         g_.append(g_temp)
-        l_.append(l_temp)
     return d_, g_
 
 def lyambda(n):
@@ -136,7 +134,7 @@ def coef(n, x_, y_, z_, e, r, m, lyambda, c, iks):
         # перезаписать сигму
         if f1 <= e or k == m0:
             m = k
-            return sigma[k-1], m
+            return sigma, m
             break
 
 
@@ -153,6 +151,31 @@ def square(n, x_, y_, t_, p, q):
         for i in range(0, p-1):
             k_[i + l + 1] = k_[i + l] + m_[i]
     return  k_
+
+def point(n, x, y, x_, y_, sigma, lyambda, m, r):
+    f_z = 0
+    equation = "((1-x)**(r+1)*(1-y)**(r+1))/((1+lam*x)*(1+lam*y))"
+    for k in range(0, m):
+        d_temp = 0
+        g_temp = 0
+        sigma_temp = sigma[k]
+        lam = lyambda[k]
+        for i in range(0, n):
+            x_current = x - x_[i]
+            y_current = y - y_[i]
+            if x_current < 1 and y_current < 1:
+                x_current = x_current ** 2
+                y_current = y_current ** 2
+                w_temp = eval(equation, {"x": x_current, "y": y_current, "r": r, "lam": lam})
+            else:
+                w_temp = 0
+                continue
+            d_temp += sigma_temp[i] * w_temp
+            g_temp += w_temp
+        f_z += d_temp/g_temp
+    return f_z
+
+
 
 
 
@@ -176,23 +199,23 @@ if __name__ == '__main__':
     # g.x_, g.y_, g.z_ = move(g.count(), g.x_, g.y_, g.z_, a_)
     # lyambda1 = lyambda(10)
     # sigma, m = coef(g.count(), g.x_, g.y_, g.z_, 0.01, 3, 10, lyambda1, 1.2, iks=True)
-    # d, g = osp(g.len(), x, y, z, 0, 1)
-    x = [2, 1, 4, 6]
-    # x = [0.2, 0.5, 4, 3, 4, 1]
+    # x = [2, 1, 4, 6]
+    x = [0.2, 0.5, 4, 3]
     x = np.array(x)
-    y = [3, 3, 8, 4]
-    # y = [0, 0, 0, 0, 0, 0]
+    # y = [3, 3, 8, 4]
+    y = [0, 0, 0, 0]
     y = np.array(y)
-    z = [2, 5, 6, 3]
+    z = [617.16, 1101, 1649, 2597]
     z = np.array(z)
     ready(4, x, y, 1)
-
     q, p = number(y, x)
     t_ = layer(4, y, q)
     a_ = order(4, t_, y, x, q)
-    move(4, x, y, z, a_)
-    # d, g = osp(6, x, y, z, 0, 1)
+    x, y, z = move(4, x, y, z, a_)
     lyambda1 = lyambda(10)
-    coef(4, x, y, z, 0.01, 3, 10, lyambda1, 1.2, iks = True)
-    square(4, x, y, t_, p, q)
+    sigma, m = coef(4, x, y, z, 0.01, 3, 10, lyambda1, 1.2, iks = True)
+    # square(4, x, y, t_, p, q)
+    # fz = point(g.count(), 1, 1, g.x_, g.y_, sigma, lyambda1, m, 3)
+    fz = point(4, 1, 1, x, y, sigma, lyambda1, m, 3)
+
     print(1)
