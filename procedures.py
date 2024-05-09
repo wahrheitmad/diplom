@@ -82,11 +82,11 @@ def osp(n, x_, y_, z_, r, lam):
         g_.append(g_temp)
     return d_, g_
 
-def lyambda(n):
+def lyambda(n, lyambda1, lamcoef):
     lyambda = np.zeros(n).astype(int)
-    lyambda[1] = 100
+    lyambda[1] = lyambda1
     for i in range(2, n):
-        lyambda[i] = lyambda[i-1]*3
+        lyambda[i] = lyambda[i-1]*lamcoef
     return lyambda
 
 
@@ -192,30 +192,29 @@ if __name__ == '__main__':
     # x = g.x_values()
     # y = g.y_values()
     # z = g.z_values(x, y)
-    # g.x_, g.y_ = ready(g.count(), g.x_, g.y_, g.length)
-    # q, p = number(g.y_, g.x_)
-    # t_ = layer(g.count(), g.y_, q)
-    # a_ = order(g.count(), t_, g.y_, g.x_, q)
-    # g.x_, g.y_, g.z_ = move(g.count(), g.x_, g.y_, g.z_, a_)
+    g.x_, g.y_ = ready(g.count(), g.x_, g.y_, g.length)
+    q, p = number(g.y_, g.x_)
+    t_ = layer(g.count(), g.y_, q)
+    a_ = order(g.count(), t_, g.y_, g.x_, q)
+    g.x_, g.y_, g.z_ = move(g.count(), g.x_, g.y_, g.z_, a_)
+    lyambda1 = lyambda(10, 100, 3)
+    sigma, m = coef(g.count(), g.x_, g.y_, g.z_, 0.01, 3, 10, lyambda1, 1.2, iks=True)
+    fz = point(g.count(), 1, 1, g.x_, g.y_, sigma, lyambda1, m, 3)
+    # # x = [2, 1, 4, 6]
+    # x = [0.2, 0.5, 4, 3]
+    # x = np.array(x)
+    # # y = [3, 3, 8, 4]
+    # y = [0, 0, 0, 0]
+    # y = np.array(y)
+    # z = [617.16, 1101, 1649, 2597]
+    # z = np.array(z)
+    # ready(4, x, y, 1)
+    # q, p = number(y, x)
+    # t_ = layer(4, y, q)
+    # a_ = order(4, t_, y, x, q)
+    # x, y, z = move(4, x, y, z, a_)
     # lyambda1 = lyambda(10)
-    # sigma, m = coef(g.count(), g.x_, g.y_, g.z_, 0.01, 3, 10, lyambda1, 1.2, iks=True)
-    # x = [2, 1, 4, 6]
-    x = [0.2, 0.5, 4, 3]
-    x = np.array(x)
-    # y = [3, 3, 8, 4]
-    y = [0, 0, 0, 0]
-    y = np.array(y)
-    z = [617.16, 1101, 1649, 2597]
-    z = np.array(z)
-    ready(4, x, y, 1)
-    q, p = number(y, x)
-    t_ = layer(4, y, q)
-    a_ = order(4, t_, y, x, q)
-    x, y, z = move(4, x, y, z, a_)
-    lyambda1 = lyambda(10)
-    sigma, m = coef(4, x, y, z, 0.01, 3, 10, lyambda1, 1.2, iks = True)
-    # square(4, x, y, t_, p, q)
-    # fz = point(g.count(), 1, 1, g.x_, g.y_, sigma, lyambda1, m, 3)
-    fz = point(4, 1, 1, x, y, sigma, lyambda1, m, 3)
+    # sigma, m = coef(4, x, y, z, 0.01, 3, 10, lyambda1, 1.2, iks = True)
+    # fz = point(4, 1, 1, x, y, sigma, lyambda1, m, 3)
 
     print(1)
