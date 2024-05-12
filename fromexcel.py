@@ -36,6 +36,7 @@ def read_from_excel(filepath):
     data = pd.DataFrame(excel_data, columns=['x', 'y', 'z'])
     print("The content of the file is:\n", data)
     x = data['x'].to_numpy()
+    print('Numpy Array Datatype :', x.dtype)
     y = data['y'].to_numpy()
     z = data['z'].to_numpy()
     print()

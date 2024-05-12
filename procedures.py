@@ -44,7 +44,6 @@ def order(n, t_, y_, x_, q):
                         temp = a_[l]
                         a_[l] = a_[l+1]
                         a_[l+1] = temp
-    print(1)
     return a_
 
 def move(n, x_, y_, z_, a_):

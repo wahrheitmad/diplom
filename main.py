@@ -9,7 +9,7 @@ from numpy import sin, cos, pi
 
 # Класс сетки
 class Grid:
-    def __init__(self, x_min, x_max, y_min, y_max, length):
+    def __init__(self, x_min= None, x_max= None, y_min= None, y_max= None, length= None):
         self.x_min = x_min
         self.x_max = x_max
         self.y_min = y_min
@@ -23,12 +23,20 @@ class Grid:
 
 # Класс уравнения
 class Equation(Grid):
-    def __init__(self, x_min, x_max, y_min, y_max, length, equation):
+    def __init__(self, x_min = None, x_max= None, y_min= None, y_max= None, length= None, equation= None, x=None, y=None, z=None):
         super().__init__(x_min, x_max, y_min, y_max, length)
         self.equation = equation
-        self.x_ = self.x_values()
-        self.y_ = self.y_values()
-        self.z_ = self.z_values(self.x_, self.y_)
+        if equation is not None:
+            self.x_ = self.x_values()
+            self.y_ = self.y_values()
+            self.z_ = self.z_values(self.x_, self.y_)
+            self.count = len(self.x_)
+        else:
+            self.x_ = np.array(x)
+            self.y_ = np.array(y)
+            self.z_ = np.array(z)
+            self.count = len(self.x_)
+
 
     # Массив значений X
     def x_values(self):
