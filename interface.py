@@ -29,11 +29,11 @@ m = 0
 def get_equation():
     global g
     equation = equation_entry.get()
-    x_min = int(gridx_min_entry.get())
-    x_max = int(gridx_max_entry.get())
-    y_min = int(gridy_min_entry.get())
-    y_max = int(gridy_max_entry.get())
-    length = int(grid_s_entry.get())/2
+    x_min = int(float(gridx_min_entry.get()))
+    x_max = int(float(gridx_max_entry.get()))
+    y_min = int(float(gridy_min_entry.get()))
+    y_max = int(float(gridy_max_entry.get()))
+    length = float(grid_s_entry.get())/2
     g = Equation(x_min, x_max, y_min, y_max, length, equation)
     messagebox.showinfo(title="Успешно", message="Создана сетка [{0}, {1}] x [{2}, {3}], сторона квадрата: {4}. Уравнение: {5}".format(x_min, x_max, y_min, y_max, length, equation))
     return equation, x_min, x_max, y_min, y_max, length
@@ -49,8 +49,8 @@ def make_equation(x_min, x_max, y_min, y_max, length, equation):
 
 def save_params():
     global lyambda1, lamcoef, r, c, e
-    lyambda1 = int(lyambda1_entry.get())
-    lamcoef = int(lamcoef_entry.get())
+    lyambda1 = float(lyambda1_entry.get())
+    lamcoef = float(lamcoef_entry.get())
     r = int(r_entry.get())
     c = float(speed_entry.get())
     e = float(e_entry.get())
@@ -162,6 +162,30 @@ def clean_all():
             if isinstance(child, tkinter.Entry):
                 child.delete(0, tkinter.END)
 
+
+def validate_equation_input(event):
+    dig = 0
+    let = 0
+    ops = 0
+    value = equation_entry.get()
+    chars = ['/', '*', '-', '+', '**']
+    for i in value:
+        if i.isdigit():
+            dig += 1
+        if i.isalpha():
+            let += 1
+        if i in chars:
+            ops += 1
+    if dig == 0 or let == 0 or ops == 0:
+        messagebox.showinfo(title="Внимание", message="Введенная строка не является уравнением")
+
+def validate_digit_input(event):
+    value = gridx_min_entry.get()
+    if value.isalpha():
+        messagebox.showinfo(title="Внимание", message="Данный параметр должен быть числом")
+
+
+
 def _quit():
     root.quit()  # остановка цикла
     root.destroy()  # закрытие приложения
@@ -208,6 +232,7 @@ ToolTip(equation_label, msg="Например: 1 - (x/8) ** 2 + 0.5 * sin(pi/4 *
 
 equation_entry = tkinter.Entry(width=50, font=("", 14))
 equation_entry.grid(row=0, column=0, sticky="NW", pady=60, padx=15)
+equation_entry.bind("<FocusOut>", validate_equation_input)
 
 grid_label = tkinter.Label(text="Параметры сетки.", font=("Arial", 14), bg='gray76', foreground="forest green")
 grid_label.grid(row=0, column=0, sticky="NW", pady=90, padx=15)
@@ -224,6 +249,7 @@ gridx_min_entry.grid(row=0, column=0, sticky="NW", pady=150, padx=15)
 ToolTip(gridx_min_entry, msg="Например: -8", delay=1,
         parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
         fg="black", bg="white", padx=10, pady=10)
+gridx_min_entry.bind("<FocusOut>", validate_digit_input)
 
 gridx_max_entry = tkinter.Entry(width=10, font=("", 14))
 gridx_max_entry.grid(row=0, column=0, sticky="NW", pady=150, padx=155)
