@@ -7,6 +7,7 @@ from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
 from numpy import sin, cos
+from scipy.interpolate import interp2d, bisplrep, bisplev
 from tktooltip import ToolTip
 from PyQt5.QtWidgets import (QWidget, QPushButton, QLineEdit,
     QInputDialog, QApplication)
@@ -25,9 +26,12 @@ e = 0
 s = 0
 sigma = []
 m = 0
+x_int = []
+y_int = []
+z_int = []
 
 def get_equation():
-    global g
+    global g, x_int, y_int, z_int
     equation = equation_entry.get()
     x_min = int(float(gridx_min_entry.get()))
     x_max = int(float(gridx_max_entry.get()))
@@ -35,6 +39,9 @@ def get_equation():
     y_max = int(float(gridy_max_entry.get()))
     length = float(grid_s_entry.get())/2
     g = Equation(x_min, x_max, y_min, y_max, length, equation)
+    x_int = copy(g.x_)
+    y_int = copy(g.y_)
+    z_int = copy(g.z_)
     messagebox.showinfo(title="Успешно", message="Создана сетка [{0}, {1}] x [{2}, {3}], сторона квадрата: {4}. Уравнение: {5}".format(x_min, x_max, y_min, y_max, length, equation))
     return equation, x_min, x_max, y_min, y_max, length
 
@@ -75,7 +82,9 @@ def save_point():
     y = float(point_y_entry.get())
     x = float(point_x_entry.get())
     messagebox.showinfo(title="Успешно", message="Точка сохранена")
-    fz = find_point(x, y)
+
+    interpolator = bisplrep(x_int, y_int, z_int,)
+    fz = bisplev(x, y, interpolator)
     messagebox.showinfo(title="Успешно", message="Значения найдены")
     result_f_entry.insert(0, fz)
     result_dx_entry.insert(0, fz)
@@ -94,10 +103,15 @@ def open_file():
     def check():
         global s
         s = int(entry.get())/2
+        g.s = s
         root1.destroy()
-    global g
+    global g, x_int, y_int, z_int
     filepath = filedialog.askopenfilename()
     x, y, z = read_from_excel(filepath)
+    g = Equation(x=x, y=y, z=z, length=10)
+    x_int = copy(g.x_)
+    y_int = copy(g.y_)
+    z_int = copy(g.z_)
     root1 = tkinter.Tk()
     label = tkinter.Label(root1, text="Введите параметр s:", font=("Arial", 14), bg='gray76')
     label.grid()
@@ -107,11 +121,14 @@ def open_file():
     button.grid()
     root1.mainloop()
     # length = int(grid_s_entry.get()) / 2
-    g = Equation(x=x, y=y, z=z, length=s)
+
     # root1.quit()  # остановка цикла
 
 print(0)
 
+
+def save_to_excel():
+    print(1)
 
 def _hide(widget):
     widget.grid_remove()
@@ -170,13 +187,13 @@ def validate_equation_input(event):
     value = equation_entry.get()
     chars = ['/', '*', '-', '+', '**']
     for i in value:
-        if i.isdigit():
-            dig += 1
+        # if i.isdigit():
+        #     dig += 1
         if i.isalpha():
             let += 1
         if i in chars:
             ops += 1
-    if dig == 0 or let == 0 or ops == 0:
+    if let == 0 or ops == 0:
         messagebox.showinfo(title="Внимание", message="Введенная строка не является уравнением")
 
 def validate_digit_input(event):
@@ -184,7 +201,30 @@ def validate_digit_input(event):
     if value.isalpha():
         messagebox.showinfo(title="Внимание", message="Данный параметр должен быть числом")
 
+def validate_digit_input1(event):
+    value = gridx_max_entry.get()
+    if value.isalpha():
+        messagebox.showinfo(title="Внимание", message="Данный параметр должен быть числом")
 
+def validate_digit_input2(event):
+    value = gridy_min_entry.get()
+    if value.isalpha():
+        messagebox.showinfo(title="Внимание", message="Данный параметр должен быть числом")
+
+def validate_digit_input3(event):
+    value = gridy_max_entry.get()
+    if value.isalpha():
+        messagebox.showinfo(title="Внимание", message="Данный параметр должен быть числом")
+
+def validate_digit_input4(event):
+    value = grid_s_entry.get()
+    if value.isalpha():
+        messagebox.showinfo(title="Внимание", message="Данный параметр должен быть числом")
+
+def validate_int_input(event):
+    value = r_entry.get()
+    if '.' in value:
+        messagebox.showinfo(title="Внимание", message="Данный параметр должен быть целым числом")
 
 def _quit():
     root.quit()  # остановка цикла
@@ -256,6 +296,7 @@ gridx_max_entry.grid(row=0, column=0, sticky="NW", pady=150, padx=155)
 ToolTip(gridx_max_entry, msg="Например: 8", delay=1,
         parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
         fg="black", bg="white", padx=10, pady=10)
+gridx_max_entry.bind("<FocusOut>", validate_digit_input1)
 
 gridy_label = tkinter.Label(text="Параметры оси Y:", font=("Arial", 14), bg='gray76')
 gridy_label.grid(row=0, column=0, sticky="NW", pady=180, padx=15)
@@ -270,12 +311,14 @@ gridy_min_entry.grid(row=0, column=0, sticky="NW", pady=210, padx=15)
 ToolTip(gridy_min_entry, msg="Например: -7", delay=1,
         parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
         fg="black", bg="white", padx=10, pady=10)
+gridy_min_entry.bind("<FocusOut>", validate_digit_input2)
 
 gridy_max_entry = tkinter.Entry(width=10, font=("", 14))
 gridy_max_entry.grid(row=0, column=0, sticky="NW", pady=210, padx=155)
 ToolTip(gridy_max_entry, msg="Например: 7", delay=1,
         parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
         fg="black", bg="white", padx=10, pady=10)
+gridy_max_entry.bind("<FocusOut>", validate_digit_input3)
 
 gridx_label = tkinter.Label(text="Введите длину стороны квадрата:", font=("Arial", 14), bg='gray76')
 gridx_label.grid(row=0, column=0, sticky="NW", pady=250, padx=15)
@@ -288,6 +331,7 @@ grid_s_entry.grid(row=0, column=0, sticky="NW", pady=280, padx=15)
 ToolTip(gridy_max_entry, msg="Например: 8", delay=1,
         parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
         fg="black", bg="white", padx=10, pady=10)
+grid_s_entry.bind("<FocusOut>", validate_digit_input4)
 
 frame = tkinter.Frame(root, bg='gray76', highlightbackground="black", highlightthickness=2)
 frame.grid(row=0, column=1, sticky="NW", padx=10, pady=60)
@@ -318,6 +362,7 @@ r_label.grid(row=4, column=0, sticky="W", padx=5, pady=5)
 
 r_entry = tkinter.Entry(frame, width=10, font=("", 14))
 r_entry.grid(row=4, column=1, sticky="W", padx=5, pady=5)
+r_entry.bind("<FocusOut>", validate_int_input)
 
 e_label = tkinter.Label(frame, text="Точность (е) :", font=("Arial", 14), bg='gray76')
 e_label.grid(row=5, column=0, sticky="W", padx=5, pady=5)
