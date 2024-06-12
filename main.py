@@ -62,9 +62,12 @@ class Equation(Grid):
     #     result = result.evalf() # Оценка символьного выражения для получения числового значения
     #     return result
 
+
+
     # Массив значений Z
     def z_values(self, x_, y_):
         z_ = []
+        self.equation = self.equation.replace('^', '**')
         for i in range(0, self.count()):
             z_.append(eval(self.equation, {"sin": sin, "cos": cos, "pi": pi, "x": x_[i], "y": y_[i]}))
         z_ = np.array(z_)
@@ -105,7 +108,7 @@ class Equation(Grid):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    g = Equation(-8, 8, -8, 8, 1, "1 - (x/8) ** 2 + 0.5 * sin(pi/4 * y)")
+    g = Equation(-8, 8, -8, 8, 1, "4*x^2+y^2-40*x-12*y+136")
     # print(g.x_values())
     # print('\n\n\n')
     # print(g.y_values())

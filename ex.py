@@ -23,6 +23,8 @@ new_x = 1
 new_y = 1
 new_data = bisplev(new_x, new_y, interpolator)
 
+dz_dx = np.gradient(data, axis=1)  # Частная производная по x
+dz_dy = np.gradient(data, axis=0)  # Частная производная по y
 
 # Визуализация результатов (пример)
 import matplotlib.pyplot as plt

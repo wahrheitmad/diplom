@@ -1,8 +1,11 @@
 import tkinter
 from idlelib.tooltip import Hovertip
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
+from tkinter.filedialog import asksaveasfile
 
 import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
@@ -31,19 +34,50 @@ y_int = []
 z_int = []
 
 def get_equation():
-    global g, x_int, y_int, z_int
-    equation = equation_entry.get()
-    x_min = int(float(gridx_min_entry.get()))
-    x_max = int(float(gridx_max_entry.get()))
-    y_min = int(float(gridy_min_entry.get()))
-    y_max = int(float(gridy_max_entry.get()))
-    length = float(grid_s_entry.get())/2
-    g = Equation(x_min, x_max, y_min, y_max, length, equation)
-    x_int = copy(g.x_)
-    y_int = copy(g.y_)
-    z_int = copy(g.z_)
-    messagebox.showinfo(title="Успешно", message="Создана сетка [{0}, {1}] x [{2}, {3}], сторона квадрата: {4}. Уравнение: {5}".format(x_min, x_max, y_min, y_max, length, equation))
-    return equation, x_min, x_max, y_min, y_max, length
+    global g, x_int, y_int, z_int, toolbar, toolbarFrame
+    isEmpty = False
+    dict = {
+        'Уравнение': equation_entry.get(),
+        'x_min:': gridx_min_entry.get(),
+        'x_max': gridx_max_entry.get(),
+        'y_min': gridy_min_entry.get(),
+        'y_max': gridy_max_entry.get(),
+        's': grid_s_entry.get()
+    }
+
+    for key, value in dict.items():
+        if value.strip() == '':
+            isEmpty = True
+        else:
+            isEmpty = False
+    if isEmpty:
+        messagebox.showinfo(title="Предупреждение",
+                            message="Пожалуйста, заполните все поля!")
+    else:
+        equation = equation_entry.get()
+        x_min = int(float(gridx_min_entry.get()))
+        x_max = int(float(gridx_max_entry.get()))
+        y_min = int(float(gridy_min_entry.get()))
+        y_max = int(float(gridy_max_entry.get()))
+        length = float(grid_s_entry.get())/2
+        g = Equation(x_min, x_max, y_min, y_max, length, equation)
+        x_int = copy(g.x_)
+        y_int = copy(g.y_)
+        z_int = copy(g.z_)
+        messagebox.showinfo(title="Успешно", message="Создана сетка [{0}, {1}] x [{2}, {3}], сторона квадрата: {4}. Уравнение: {5}".format(x_min, x_max, y_min, y_max, length, equation))
+        # g = Equation(x_min, x_max, y_min, y_max, length, equation)
+        x = g.x_values()
+        y = g.y_values()
+        fig = make_equation(x_min, x_max, y_min, y_max, length, equation)
+        fig.set_size_inches(5.5, 4.5)
+
+        canvas = FigureCanvasTkAgg(fig, master=canvas0)
+        canvas.get_tk_widget().grid(row=0, column=2, rowspan=1, sticky="NW")
+        canvas.draw()
+        toolbarFrame = tkinter.Frame(master=canvas0)
+        toolbarFrame.grid(row=0, column=2, sticky="NW", pady=2)
+        toolbar = NavigationToolbar2Tk(canvas, toolbarFrame)
+        return equation, x_min, x_max, y_min, y_max, length
 
 def make_equation(x_min, x_max, y_min, y_max, length, equation):
     global g
@@ -56,12 +90,30 @@ def make_equation(x_min, x_max, y_min, y_max, length, equation):
 
 def save_params():
     global lyambda1, lamcoef, r, c, e
-    lyambda1 = float(lyambda1_entry.get())
-    lamcoef = float(lamcoef_entry.get())
-    r = int(r_entry.get())
-    c = float(speed_entry.get())
-    e = float(e_entry.get())
-    messagebox.showinfo(title="Успешно", message="Сохранены параметры λ1: {0}, Коэффициент увеличения λ: {1}, r: {2}, c: {3}, e: {4}".format(lyambda1, lamcoef, r, c, e))
+    isEmpty = False
+    dict = {
+        'λ1': lyambda1_entry.get(),
+        'Коэффициент увеличения λ:': lamcoef_entry.get(),
+        'r': r_entry.get(),
+        'c': speed_entry.get(),
+        'e': e_entry.get()
+    }
+
+    for key, value in dict.items():
+        if value.strip() == '':
+            isEmpty = True
+        else:
+            isEmpty = False
+    if isEmpty:
+        messagebox.showinfo(title="Предупреждение",
+                            message="Пожалуйста, заполните все параметры!")
+    else:
+        lyambda1 = float(lyambda1_entry.get())
+        lamcoef = float(lamcoef_entry.get())
+        r = int(r_entry.get())
+        c = float(speed_entry.get())
+        e = float(e_entry.get())
+        messagebox.showinfo(title="Успешно", message="Сохранены параметры λ1: {0}, Коэффициент увеличения λ: {1}, r: {2}, c: {3}, e: {4}".format(lyambda1, lamcoef, r, c, e))
 
 
 def main_algorithm():
@@ -79,16 +131,31 @@ def main_algorithm():
     messagebox.showinfo(title="Успешно", message="Массив коэффициентов σ сохранен")
 
 def save_point():
-    y = float(point_y_entry.get())
-    x = float(point_x_entry.get())
-    messagebox.showinfo(title="Успешно", message="Точка сохранена")
+    isEmpty = False
+    dict = {
+        'x': point_x_entry.get(),
+        'y:': point_y_entry.get(),
+    }
 
-    interpolator = bisplrep(x_int, y_int, z_int,)
-    fz = bisplev(x, y, interpolator)
-    messagebox.showinfo(title="Успешно", message="Значения найдены")
-    result_f_entry.insert(0, fz)
-    result_dx_entry.insert(0, fz)
-    result_dy_entry.insert(0, fz)
+    for key, value in dict.items():
+        if value.strip() == '':
+            isEmpty = True
+        else:
+            isEmpty = False
+    if isEmpty:
+        messagebox.showinfo(title="Предупреждение",
+                            message="Пожалуйста, заполните все параметры!")
+    else:
+        y = float(point_y_entry.get())
+        x = float(point_x_entry.get())
+        # fz = find_point(x,y)
+        messagebox.showinfo(title="Успешно", message="Точка сохранена")
+        interpolator = bisplrep(np.array(x_int), np.array(y_int), np.array(z_int),)
+        fz = bisplev(np.array(x), np.array(y), interpolator)
+        messagebox.showinfo(title="Успешно", message="Значения найдены")
+        result_f_entry.insert(0, fz)
+    # result_dx_entry.insert(0, fz)
+    # result_dy_entry.insert(0, fz)
 
 
 def find_point(x, y):
@@ -109,6 +176,25 @@ def open_file():
     filepath = filedialog.askopenfilename()
     x, y, z = read_from_excel(filepath)
     g = Equation(x=x, y=y, z=z, length=10)
+    x = copy(g.x_)
+    y = copy(g.y_)
+    xgrid, ygrid = np.meshgrid(x, y)
+    interpolator = bisplrep(np.array(g.x_), np.array(g.y_), np.array(g.z_))
+    zgrid = bisplev(np.array(g.x_), np.array(g.y_), interpolator)
+    fig = plt.figure(figsize=(12, 7))
+    fig.set_size_inches(5.5, 4.5)
+    ax2 = fig.add_subplot(111, projection='3d')
+    ax2.plot_surface(xgrid, ygrid, zgrid, cmap='viridis')
+    ax2.set_xlabel('X')
+    ax2.set_ylabel('Y')
+    ax2.set_zlabel('Z')
+
+    canvas = FigureCanvasTkAgg(fig, master=canvas0)
+    canvas.get_tk_widget().grid(row=0, column=2, rowspan=1, sticky="NW")
+    canvas.draw()
+    toolbarFrame = tkinter.Frame(master=canvas0)
+    toolbarFrame.grid(row=0, column=2, sticky="NW", pady=2)
+    toolbar = NavigationToolbar2Tk(canvas, toolbarFrame)
     x_int = copy(g.x_)
     y_int = copy(g.y_)
     z_int = copy(g.z_)
@@ -124,11 +210,148 @@ def open_file():
 
     # root1.quit()  # остановка цикла
 
-print(0)
+
+def save_to_table():
+
+    def get_points():
+        x_min = int(float(x_min_entry.get()))
+        x_max = int(float(x_max_entry.get()))
+        x_step = int(float(x_step_entry.get()))
+        y_min = int(float(y_min_entry.get()))
+        y_max = int(float(y_max_entry.get()))
+        y_step = int(float(y_step_entry.get()))
+        x_mas = []
+        x_temp = copy(x_min)
+        y_temp = copy(y_min)
+        y_mas = []
+        for x in np.arange(x_min, x_max + x_step, x_step):
+            x_mas.append(x)
+        for y in np.arange(y_min, y_max + y_step, y_step):
+            y_mas.append(y)
+        interpolator = bisplrep(np.array(x_int), np.array(y_int), np.array(z_int), )
+        fz = bisplev(np.array(x_mas), np.array(y_mas), interpolator)
+        points = []
+        for i in range(len(x_mas)):
+            for j in range(len(x_mas)):
+                points.append((x_mas[i], y_mas[i], fz[i][j]))
+        # добавляем данные
+        for point in points:
+            tree.insert("", 'end', values=point)
+
+    rt = tkinter.Tk()
+    rt.geometry("1400x900")
+    rt.wm_title("Сохранить в таблицу")
+    rt.configure(bg='gray76')
+
+
+    # определяем столбцы
+    columns = ("x", "y", "z")
+
+    gridx_label = tkinter.Label(rt, text="Параметры оси Х:", font=("Arial", 14), bg='gray76')
+    gridx_label.grid(row=0, column=0, sticky="NW", pady=60, padx=15)
+    # myTip = Hovertip(gridx_label, 'Введите в текстбоксы ограничения левой и правой \nграницы оси X', fontsize)
+    ToolTip(gridx_label, msg="Введите в текстбоксы ограничения оси X", delay=1,
+            parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
+            fg="black", bg="white", padx=10, pady=10)
+
+    x_min_entry = tkinter.Entry(rt, width=10, font=("", 14))
+    x_min_entry.grid(row=0, column=0, sticky="NW", pady=90, padx=15)
+    ToolTip(x_min_entry, msg="Например: -8", delay=1,
+            parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
+            fg="black", bg="white", padx=10, pady=10)
+    x_min_entry.bind("<FocusOut>", validate_digit_input)
+
+    x_max_entry = tkinter.Entry(rt, width=10, font=("", 14))
+    x_max_entry.grid(row=0, column=0, sticky="NW", pady=90, padx=155)
+    ToolTip(x_max_entry, msg="Например: 8", delay=1,
+            parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
+            fg="black", bg="white", padx=10, pady=10)
+    x_max_entry.bind("<FocusOut>", validate_digit_input1)
+
+    x_step_label = tkinter.Label(rt, text="Шаг по оси Х:", font=("Arial", 14), bg='gray76')
+    x_step_label.grid(row=0, column=0, sticky="NW", pady=60, padx=295)
+    # myTip = Hovertip(gridx_label, 'Введите в текстбокс шаг по оси X', fontsize)
+    ToolTip(x_step_label, msg="Введите в текстбокс шаг по оси X", delay=1,
+            parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
+            fg="black", bg="white", padx=10, pady=10)
+
+    x_step_entry = tkinter.Entry(rt, width=10, font=("", 14))
+    x_step_entry.grid(row=0, column=0, sticky="NW", pady=90, padx=295)
+    ToolTip(x_step_entry, msg="Например: 1", delay=1,
+            parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
+            fg="black", bg="white", padx=10, pady=10)
+    gridx_min_entry.bind("<FocusOut>", validate_digit_input)
+
+    y_label = tkinter.Label(rt, text="Параметры оси Y:", font=("Arial", 14), bg='gray76')
+    y_label.grid(row=0, column=0, sticky="NW", pady=120, padx=15)
+    # myTip = Hovertip(gridy_label, 'Введите в текстбоксы ограничения левой и правой \nграницы оси Y')
+    ToolTip(y_label, msg="Введите в текстбоксы ограничения оси Y", delay=1,
+            parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
+            fg="black", bg="white", padx=10, pady=10)
+
+    y_min_entry = tkinter.Entry(rt, width=10, font=("", 14))
+    y_min_entry.grid(row=0, column=0, sticky="NW", pady=150, padx=15)
+    ToolTip(y_min_entry, msg="Например: -7", delay=1,
+            parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
+            fg="black", bg="white", padx=10, pady=10)
+    y_min_entry.bind("<FocusOut>", validate_digit_input2)
+
+    y_max_entry = tkinter.Entry(rt, width=10, font=("", 14))
+    y_max_entry.grid(row=0, column=0, sticky="NW", pady=150, padx=155)
+    ToolTip(y_max_entry, msg="Например: 7", delay=1,
+            parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
+            fg="black", bg="white", padx=10, pady=10)
+    y_max_entry.bind("<FocusOut>", validate_digit_input3)
+
+    y_step_label = tkinter.Label(rt, text="Шаг по оси Х:", font=("Arial", 14), bg='gray76')
+    y_step_label.grid(row=0, column=0, sticky="NW", pady=120, padx=295)
+    # myTip = Hovertip(gridx_label, 'Введите в текстбокс шаг по оси X', fontsize)
+    ToolTip(y_step_label, msg="Введите в текстбокс шаг по оси Y", delay=1,
+            parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
+            fg="black", bg="white", padx=10, pady=10)
+
+    y_step_entry = tkinter.Entry(rt, width=10, font=("", 14))
+    y_step_entry.grid(row=0, column=0, sticky="NW", pady=150, padx=295)
+    ToolTip(y_step_entry, msg="Например: 1", delay=1,
+            parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
+            fg="black", bg="white", padx=10, pady=10)
+    gridx_min_entry.bind("<FocusOut>", validate_digit_input)
+
+    okk_button = tkinter.Button(master=rt, text="Показать значения", command=get_points, width=15, height=2,
+                               font=("Arial", 10, "bold"))
+    okk_button.grid(row=0, column=0, sticky="NW", pady=230, ipadx=220, padx=15)
+
+
+    tree = ttk.Treeview(rt, columns=columns, show="headings")
+    tree.grid()
+
+    # определяем заголовки
+    tree.heading("x", text="x")
+    tree.heading("y", text="y")
+    tree.heading("z", text="z")
+    # Добавляем вертикальную полосу прокрутки
+    vsb = ttk.Scrollbar(rt, orient="vertical", command=tree.yview)
+    vsb.pack(side="right", fill="y")
+    tree.configure(yscrollcommand=vsb.set)
+
+
+
+    rt.mainloop()
 
 
 def save_to_excel():
-    print(1)
+    df = pd.DataFrame({'x': g.x_,
+                       'y': g.y_,
+                       'z': g.z_})
+    file = asksaveasfile(initialfile='Untitled',
+                      defaultextension=".xlsx", filetypes=[("All Files", "*.*"), ("Excel Documents", "*.xlsx")])
+    if file is not None:
+        df.to_excel(file.name, index=False)
+        file.close()
+        print("DataFrame saved to", file.name)
+    else:
+        print("File save cancelled")
+
 
 def _hide(widget):
     widget.grid_remove()
@@ -178,6 +401,9 @@ def clean_all():
         for child in widget.winfo_children():
             if isinstance(child, tkinter.Entry):
                 child.delete(0, tkinter.END)
+    # result_dx_entry.delete(0, tkinter.END)
+    result_f_entry.delete(0, tkinter.END)
+    # result_dy_entry.delete(0, tkinter.END)
 
 
 def validate_equation_input(event):
@@ -244,7 +470,8 @@ root.config(menu=mainmenu)
 filemenu = tkinter.Menu(mainmenu, tearoff=0)
 filemenu.add_command(label="Открыть...", command=open_file, font=("", 14))
 filemenu.add_command(label="Новый", font=("", 14), command=clean_all)
-filemenu.add_command(label="Сохранить...", font=("", 14))
+filemenu.add_command(label="Сохранить...", command=save_to_excel, font=("", 14))
+filemenu.add_command(label="Вывести значения в таблицу", command=save_to_table, font=("", 14))
 filemenu.add_separator()
 filemenu.add_command(label="Выход", command=_quit, font=("", 14))
 
@@ -426,17 +653,17 @@ result_f_label.grid(row=2, column=0, sticky="W", padx=25, pady=5)
 result_f_entry = tkinter.Entry(frame2, width=10, font=("", 14))
 result_f_entry.grid(row=2, column=0, sticky="W", padx=90, pady=5)
 
-result_dx_label = tkinter.Label(frame2, text="(∂f ̃)/∂x", font=("Arial", 14), bg='gray76')
-result_dx_label.grid(row=3, column=0, sticky="W", padx=25, pady=5)
-
-result_dx_entry = tkinter.Entry(frame2, width=10, font=("", 14))
-result_dx_entry.grid(row=3, column=0, sticky="W", padx=90, pady=5)
-
-result_dy_label = tkinter.Label(frame2, text="(∂f ̃)/∂y:", font=("Arial", 14), bg='gray76')
-result_dy_label.grid(row=4, column=0, sticky="W", padx=25, pady=5)
-
-result_dy_entry = tkinter.Entry(frame2, width=10, font=("", 14))
-result_dy_entry.grid(row=4, column=0, sticky="W", padx=90, pady=5)
+# result_dx_label = tkinter.Label(frame2, text="(∂f ̃)/∂x", font=("Arial", 14), bg='gray76')
+# result_dx_label.grid(row=3, column=0, sticky="W", padx=25, pady=5)
+#
+# result_dx_entry = tkinter.Entry(frame2, width=10, font=("", 14))
+# result_dx_entry.grid(row=3, column=0, sticky="W", padx=90, pady=5)
+#
+# result_dy_label = tkinter.Label(frame2, text="(∂f ̃)/∂y:", font=("Arial", 14), bg='gray76')
+# result_dy_label.grid(row=4, column=0, sticky="W", padx=25, pady=5)
+#
+# result_dy_entry = tkinter.Entry(frame2, width=10, font=("", 14))
+# result_dy_entry.grid(row=4, column=0, sticky="W", padx=90, pady=5)
 
 
 
