@@ -1,5 +1,5 @@
 # This is a sample Python script.
-
+from math import tan
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
@@ -69,7 +69,7 @@ class Equation(Grid):
         z_ = []
         self.equation = self.equation.replace('^', '**')
         for i in range(0, self.count()):
-            z_.append(eval(self.equation, {"sin": sin, "cos": cos, "pi": pi, "x": x_[i], "y": y_[i]}))
+            z_.append(eval(self.equation, {"sin": sin, "cos": cos, "tan": tan, "tg": tan, "pi": pi, "x": x_[i], "y": y_[i]}))
         z_ = np.array(z_)
         return z_
 
