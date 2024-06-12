@@ -212,14 +212,28 @@ def open_file():
 
 
 def save_to_table():
+    def saveex():
+        x1, y1, z1 = get_points()
+        df = pd.DataFrame({'x': x1,
+                           'y': y1,
+                           'z': z1})
+        file = asksaveasfile(initialfile='Untitled',
+                             defaultextension=".xlsx", filetypes=[("All Files", "*.*"), ("Excel Documents", "*.xlsx")])
+        if file is not None:
+            df.to_excel(file.name, index=False)
+            file.close()
+            print("DataFrame saved to", file.name)
+            messagebox.showinfo(title="Успешно", message="Файл сохранен по пути {0}".format(file.name))
+        else:
+            print("File save cancelled")
 
     def get_points():
         x_min = int(float(x_min_entry.get()))
         x_max = int(float(x_max_entry.get()))
-        x_step = int(float(x_step_entry.get()))
+        x_step = float(x_step_entry.get())
         y_min = int(float(y_min_entry.get()))
         y_max = int(float(y_max_entry.get()))
-        y_step = int(float(y_step_entry.get()))
+        y_step = float(y_step_entry.get())
         x_mas = []
         x_temp = copy(x_min)
         y_temp = copy(y_min)
@@ -229,17 +243,29 @@ def save_to_table():
         for y in np.arange(y_min, y_max + y_step, y_step):
             y_mas.append(y)
         interpolator = bisplrep(np.array(x_int), np.array(y_int), np.array(z_int), )
-        fz = bisplev(np.array(x_mas), np.array(y_mas), interpolator)
+        # fz = bisplev(np.array(x_mas), np.array(y_mas), interpolator)
         points = []
+        z1 = []
         for i in range(len(x_mas)):
             for j in range(len(x_mas)):
-                points.append((x_mas[i], y_mas[i], fz[i][j]))
+                z1.append(bisplev(np.array(x_mas[i]), np.array(y_mas[j]), interpolator))
+                points.append((x_mas[i], y_mas[j], bisplev(np.array(x_mas[i]), np.array(y_mas[j]), interpolator)))
         # добавляем данные
+        print(points)
         for point in points:
             tree.insert("", 'end', values=point)
 
+        x1 = []
+        y1 = []
+        for x in np.arange(x_min, x_max + x_step, x_step):
+            for y in np.arange(y_min, y_max + y_step, y_step):
+                x1.append(x)
+                y1.append(y)
+        return x1, y1, z1
+
+
     rt = tkinter.Tk()
-    rt.geometry("1400x900")
+    rt.geometry("700x950")
     rt.wm_title("Сохранить в таблицу")
     rt.configure(bg='gray76')
 
@@ -248,82 +274,85 @@ def save_to_table():
     columns = ("x", "y", "z")
 
     gridx_label = tkinter.Label(rt, text="Параметры оси Х:", font=("Arial", 14), bg='gray76')
-    gridx_label.grid(row=0, column=0, sticky="NW", pady=60, padx=15)
+    gridx_label.grid(row=0, column=0, sticky="NW", pady=60, padx=35)
     # myTip = Hovertip(gridx_label, 'Введите в текстбоксы ограничения левой и правой \nграницы оси X', fontsize)
     ToolTip(gridx_label, msg="Введите в текстбоксы ограничения оси X", delay=1,
             parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
             fg="black", bg="white", padx=10, pady=10)
 
     x_min_entry = tkinter.Entry(rt, width=10, font=("", 14))
-    x_min_entry.grid(row=0, column=0, sticky="NW", pady=90, padx=15)
+    x_min_entry.grid(row=0, column=0, sticky="NW", pady=90, padx=35)
     ToolTip(x_min_entry, msg="Например: -8", delay=1,
             parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
             fg="black", bg="white", padx=10, pady=10)
     x_min_entry.bind("<FocusOut>", validate_digit_input)
 
     x_max_entry = tkinter.Entry(rt, width=10, font=("", 14))
-    x_max_entry.grid(row=0, column=0, sticky="NW", pady=90, padx=155)
+    x_max_entry.grid(row=0, column=0, sticky="NW", pady=90, padx=175)
     ToolTip(x_max_entry, msg="Например: 8", delay=1,
             parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
             fg="black", bg="white", padx=10, pady=10)
     x_max_entry.bind("<FocusOut>", validate_digit_input1)
 
     x_step_label = tkinter.Label(rt, text="Шаг по оси Х:", font=("Arial", 14), bg='gray76')
-    x_step_label.grid(row=0, column=0, sticky="NW", pady=60, padx=295)
+    x_step_label.grid(row=0, column=0, sticky="NW", pady=60, padx=325)
     # myTip = Hovertip(gridx_label, 'Введите в текстбокс шаг по оси X', fontsize)
     ToolTip(x_step_label, msg="Введите в текстбокс шаг по оси X", delay=1,
             parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
             fg="black", bg="white", padx=10, pady=10)
 
     x_step_entry = tkinter.Entry(rt, width=10, font=("", 14))
-    x_step_entry.grid(row=0, column=0, sticky="NW", pady=90, padx=295)
+    x_step_entry.grid(row=0, column=0, sticky="NW", pady=90, padx=325)
     ToolTip(x_step_entry, msg="Например: 1", delay=1,
             parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
             fg="black", bg="white", padx=10, pady=10)
     gridx_min_entry.bind("<FocusOut>", validate_digit_input)
 
     y_label = tkinter.Label(rt, text="Параметры оси Y:", font=("Arial", 14), bg='gray76')
-    y_label.grid(row=0, column=0, sticky="NW", pady=120, padx=15)
+    y_label.grid(row=0, column=0, sticky="NW", pady=120, padx=35)
     # myTip = Hovertip(gridy_label, 'Введите в текстбоксы ограничения левой и правой \nграницы оси Y')
     ToolTip(y_label, msg="Введите в текстбоксы ограничения оси Y", delay=1,
             parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
             fg="black", bg="white", padx=10, pady=10)
 
     y_min_entry = tkinter.Entry(rt, width=10, font=("", 14))
-    y_min_entry.grid(row=0, column=0, sticky="NW", pady=150, padx=15)
+    y_min_entry.grid(row=0, column=0, sticky="NW", pady=150, padx=35)
     ToolTip(y_min_entry, msg="Например: -7", delay=1,
             parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
             fg="black", bg="white", padx=10, pady=10)
     y_min_entry.bind("<FocusOut>", validate_digit_input2)
 
     y_max_entry = tkinter.Entry(rt, width=10, font=("", 14))
-    y_max_entry.grid(row=0, column=0, sticky="NW", pady=150, padx=155)
+    y_max_entry.grid(row=0, column=0, sticky="NW", pady=150, padx=175)
     ToolTip(y_max_entry, msg="Например: 7", delay=1,
             parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
             fg="black", bg="white", padx=10, pady=10)
     y_max_entry.bind("<FocusOut>", validate_digit_input3)
 
-    y_step_label = tkinter.Label(rt, text="Шаг по оси Х:", font=("Arial", 14), bg='gray76')
-    y_step_label.grid(row=0, column=0, sticky="NW", pady=120, padx=295)
+    y_step_label = tkinter.Label(rt, text="Шаг по оси Y:", font=("Arial", 14), bg='gray76')
+    y_step_label.grid(row=0, column=0, sticky="NW", pady=120, padx=325)
     # myTip = Hovertip(gridx_label, 'Введите в текстбокс шаг по оси X', fontsize)
     ToolTip(y_step_label, msg="Введите в текстбокс шаг по оси Y", delay=1,
             parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
             fg="black", bg="white", padx=10, pady=10)
 
     y_step_entry = tkinter.Entry(rt, width=10, font=("", 14))
-    y_step_entry.grid(row=0, column=0, sticky="NW", pady=150, padx=295)
+    y_step_entry.grid(row=0, column=0, sticky="NW", pady=150, padx=325)
     ToolTip(y_step_entry, msg="Например: 1", delay=1,
             parent_kwargs={"bg": "grey", "padx": 5, "pady": 5},
             fg="black", bg="white", padx=10, pady=10)
     gridx_min_entry.bind("<FocusOut>", validate_digit_input)
 
-    okk_button = tkinter.Button(master=rt, text="Показать значения", command=get_points, width=15, height=2,
+    okk_button = tkinter.Button(master=rt, text="Показать значения", command=get_points, width=19, height=2,
                                font=("Arial", 10, "bold"))
-    okk_button.grid(row=0, column=0, sticky="NW", pady=230, ipadx=220, padx=15)
+    okk_button.grid(row=0, column=0, sticky="NW", pady=230, ipadx=220, padx=35)
 
+    saveex_button = tkinter.Button(master=rt, text="Сохранить в ...", command=saveex, width=19, height=2,
+                                font=("Arial", 10, "bold"))
+    saveex_button.grid(row=0, column=0, sticky="NW", pady=280, ipadx=220, padx=35)
 
-    tree = ttk.Treeview(rt, columns=columns, show="headings")
-    tree.grid()
+    tree = ttk.Treeview(rt, columns=columns, show="headings", height=25)
+    tree.grid(row=0, column=0, sticky="NW", pady=350, padx=35)
 
     # определяем заголовки
     tree.heading("x", text="x")
@@ -331,7 +360,7 @@ def save_to_table():
     tree.heading("z", text="z")
     # Добавляем вертикальную полосу прокрутки
     vsb = ttk.Scrollbar(rt, orient="vertical", command=tree.yview)
-    vsb.pack(side="right", fill="y")
+    vsb.grid(side="right", fill="y")
     tree.configure(yscrollcommand=vsb.set)
 
 
@@ -349,6 +378,7 @@ def save_to_excel():
         df.to_excel(file.name, index=False)
         file.close()
         print("DataFrame saved to", file.name)
+        messagebox.showinfo(title="Успешно", message="Файл сохранен по пути {0}".format(file.name))
     else:
         print("File save cancelled")
 
